@@ -10,7 +10,7 @@ variable "BR_NAME" {
 
 variable "APP_NAME" {
   type    = "string"
-  default = "GFIFormation"
+  default = "Formation"
 }
 
 # IMPORTANT: 
