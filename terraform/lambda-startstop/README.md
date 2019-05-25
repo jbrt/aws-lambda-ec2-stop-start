@@ -1,8 +1,6 @@
-Stop/Start Development environment
-==================================
+# Stop/Start Development environment
 
-How it's works ?
-----------------
+## How it's works ?
 
 This solution use two lambda functions (one for starting, one for stopping). 
 These functions will targeting the instances based on the tags applyied on them.
@@ -23,8 +21,7 @@ Here is few examples:
 - and so on
 
 
-How to deploy it ?
-------------------
+## How to deploy it ?
 
 You can use the Terraform called "deployment.tf" for doing that.
 By default, the functions will be named (but these names are variabilized and 
@@ -35,8 +32,7 @@ can be changed):
 
 But you can modify that directly in the template.
 
-How to triggered the lambda function ?
---------------------------------------
+## How to triggered the lambda function ?
 
 These functions can be triggered exactly like all other lambda function.
 By CLI, for instance :
@@ -53,8 +49,7 @@ But many other ways to call these functions are possible:
 - by SNS/SQS 
 - ...
 
-How to install a "START/STOP" like button ?
--------------------------------------------
+# How to install a "START/STOP" like button ?
 
 Let's assume that you whant to do that on a Windows machine (but it's nearly
 the same thing on a Linux machine). 
