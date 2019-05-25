@@ -10,3 +10,6 @@
 
 # PyCharm files
 **/.idea/*
+
+# ZIP files from lambda functions
+**/*.zip

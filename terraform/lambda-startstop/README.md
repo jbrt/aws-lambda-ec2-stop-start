@@ -49,7 +49,7 @@ But many other ways to call these functions are possible:
 - by SNS/SQS 
 - ...
 
-# How to install a "START/STOP" like button ?
+## How to install a "START/STOP" like button ?
 
 Let's assume that you whant to do that on a Windows machine (but it's nearly
 the same thing on a Linux machine). 
