@@ -11,6 +11,7 @@ import boto3
 import json
 import logging
 import os
+from typing import List, Dict, AnyStr
 
 
 LOGGER = logging.getLogger()
@@ -24,7 +25,7 @@ class NoTargetFoundError(Exception):
     pass
 
 
-def get_elligible_instances(instances, desired_status: str) -> list:
+def get_elligible_instances(instances, desired_status: str) -> List[AnyStr]:
     """
     From a collection of instances extract only the good ones.
     A good instance is :
@@ -67,7 +68,7 @@ def get_elligible_instances(instances, desired_status: str) -> list:
     return elligible_instances_ids
 
 
-def build_instance_filters() -> list:
+def build_instance_filters() -> List[Dict]:
     """
     This function will return a list of dictionaries used to filter
     instances based on lambda's environment variables
@@ -90,7 +91,7 @@ def build_instance_filters() -> list:
     return filters
 
 
-def start_instances_and_resume_asg(instance_ids: list):
+def start_instances_and_resume_asg(instance_ids: list) -> None:
     """
     Start the instances, wait the running state and then resume the ASGs if
     needed
@@ -122,7 +123,7 @@ def start_instances_and_resume_asg(instance_ids: list):
         client.resume_processes(AutoScalingGroupName=asg)
 
 
-def suspend_asg_and_stop_instances(instance_ids: list):
+def suspend_asg_and_stop_instances(instance_ids: list) -> None:
     """
     Suspend ASG (if exists) and then stop EC2 instances
     :param instance_ids: (list) A list of instance IDs
@@ -148,7 +149,7 @@ def suspend_asg_and_stop_instances(instance_ids: list):
     boto3.client('ec2').stop_instances(InstanceIds=instance_ids)
 
 
-def main(desired_status: str, action_method):
+def main(desired_status: str, action_method) -> Dict:
     """
     Main function
     :param desired_status: The status we are looking for 
@@ -184,20 +185,22 @@ def main(desired_status: str, action_method):
 
 # Lambda Handlers (you can choose one to alter the behavior of this lambda)
 
-def start_handler(event: dict, context: dict):
+def start_handler(event: dict, context: dict) -> Dict:
     """
     Start Handler use to only start instances
     """
     LOGGER.info('Beginning function : you want to START instances...')
-    main(desired_status='running', action_method=start_instances_and_resume_asg)
+    method = start_instances_and_resume_asg
+    return main(desired_status='running', action_method=method)
 
 
-def stop_handler(event: dict, context: dict):
+def stop_handler(event: dict, context: dict) -> Dict:
     """
     Stop Handler use to only stop instances
     """
     LOGGER.info('Beginning function : you want to STOP instances...')
-    main(desired_status='stopped', action_method=suspend_asg_and_stop_instances)
+    method = suspend_asg_and_stop_instances
+    return main(desired_status='stopped', action_method=method)
 
 
 def start_or_stop_handler(event: dict, context: dict):
