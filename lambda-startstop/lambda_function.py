@@ -174,7 +174,7 @@ def main(desired_status: str, action_method) -> Dict:
 
         # Finally let's do the job !
         LOGGER.info(f'Launch action on instances: {target_instances}')
-        action_method(InstanceIds=target_instances)
+        action_method(instance_ids=target_instances)
         
         return {'message': 'Traitment done !'}
 
