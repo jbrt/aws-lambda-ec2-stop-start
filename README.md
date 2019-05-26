@@ -1,6 +1,7 @@
 # AWS Lambda EC2 Stop-Start
 
-A simple AWS Lambda function for stopping/starting instances based on tags (for demo purpose).
+A simple AWS Lambda function for stopping/starting instances based on tags 
+(for demo purpose).
 
 ## How it's works ?
 
@@ -18,20 +19,26 @@ Only one thing is mandatory: you must use the syntax bellow.
 
 Here is few examples:
 
-- "Target1" as key and "Project:SmarterEFF" as value
+- "Target1" as key and "Project:MyProject" as value
 - "Target2" as key and "Environment:Production" as value
 - and so on
 
+With this example, functions will target instances with tag "Project" (with 
+value to MyProject) **AND** tag "Environment" (with value "Production") applied
+on them.
+
+If one instance is part of an ASG (Auto Scaling Group), **this ASG will be** 
+**suspended** while the instance is stopped to avoid instance deletion.
 
 ## How to deploy it ?
 
-You can use the Terraform called "deployment.tf" for doing that.
+You can use the Terraform called "lambda-deployment.tf" for doing that.
 By default, the functions will be named (but these names can be changed):
 
 - ${var.APP_NAME}-${var.ENV_NAME}-start
 - ${var.APP_NAME}-${var.ENV_NAME}-stop
 
-But you can modify that directly in the template.
+But you can modify that directly in the template or with tfvars files.
 
 ## How to triggered the lambda function ?
 
@@ -67,7 +74,7 @@ corresponding command.
 aws lambda invoke --function-name <FUNCTION_NAME> --region <REGION> output.txt
 
 On the AWS IAM side, the user you will use to launch these functions must have
-the righs to do that. You can achieve that with this IAM policy:
+the rights to do that. You can achieve that with this IAM policy:
 
 ```json
 {
