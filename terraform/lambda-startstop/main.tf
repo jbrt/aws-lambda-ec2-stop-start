@@ -21,8 +21,8 @@ resource "aws_iam_policy_attachment" "iam-attach" {
 
 data "archive_file" "zipit" {
   type        = "zip"
-  source_file = "${path.module}/files/lambda_function.py"
-  output_path = "${path.module}/files/lambda_function.zip"
+  source_file = "${path.module}/../../lambda-startstop/lambda_function.py"
+  output_path = "${path.module}/../../lambda-startstop/lambda_function.zip"
 }
 
 # Finally, declare a lambda function
@@ -36,8 +36,9 @@ resource "aws_lambda_function" "lambda" {
   runtime          = "python3.6"
   timeout          = "${var.timeout}"
   tags             = "${var.tags}"
-  filename = "${path.module}/files/lambda_function.zip"
+  filename         = "${path.module}/../../lambda-startstop/lambda_function.zip"
   source_code_hash = "${data.archive_file.zipit.output_base64sha256}"
+
   environment {
     variables = "${var.environment}"
   }
