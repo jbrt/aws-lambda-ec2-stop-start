@@ -24,7 +24,7 @@ Here is few examples:
 - and so on
 
 With this example, functions will target instances with tag "Project" (with 
-value to MyProject) **AND** tag "Environment" (with value "Production") applied
+value MyProject) **AND** tag "Environment" (with value "Production") applied
 on them.
 
 If one instance is part of an ASG (Auto Scaling Group), **this ASG will be** 
@@ -59,13 +59,13 @@ But many other ways to call these functions are possible:
 
 ## How to install a "START/STOP" like button ?
 
-Let's assume that you whant to do that on a Windows machine (but it's nearly
+Let's assume that you want to do that on a Windows machine (but it's nearly
 the same thing on a Linux machine). 
 
 Here is the steps:
 
 1. Install Python on the related machine (you may have admin rights to do that)
-2. Install the AWS CLI by lauchning this command in cmd.exe : pip install awscli
+2. Install the AWS CLI by launching this command in cmd.exe : pip install awscli
 3. Still in cmd.exe, add your credentials by typing: aws configure
 
 Now you can create two files, like START.bat and STOP.bat and put inside the
