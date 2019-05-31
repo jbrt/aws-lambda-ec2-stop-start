@@ -11,11 +11,12 @@ import boto3
 import json
 import logging
 import os
-from typing import List, Dict, AnyStr
+from typing import List, Dict, AnyStr, Callable
 
 
 LOGGER = logging.getLogger()
 LOGGER.setLevel(logging.INFO)
+TARGET_PREFIX = 'Target'  # This prefix is used for describing tags prefix
 
 
 class NoTargetFoundError(Exception):
@@ -68,25 +69,34 @@ def get_elligible_instances(instances, desired_status: str) -> List[AnyStr]:
     return elligible_instances_ids
 
 
-def build_instance_filters() -> List[Dict]:
+def build_instance_filters(event: dict = None) -> List[Dict]:
     """
     This function will return a list of dictionaries used to filter
     instances based on lambda's environment variables
-    
+
+    :param event: (dict) Lambda event (default: None)
     :returns: list of "AWS filters" dictionaries {'Name':'tag:<key>' Values: [<value>]}
     :raises NoTargetFoundError: if no tag will be found in environment variables
     """
-
-    LOGGER.info('Seeking for Target environment variables')
     filters = []
-    for key in os.environ:
-        if key.startswith('Target'):
-            LOGGER.info(f'Found {key} with value {os.environ[key]}')
-            tag_name, tag_value = os.environ[key].split(':')
+    tags = os.environ  # By default, we are looking for tags into env. variables
+
+    if event:
+        if any([True for key in event if key.startswith(TARGET_PREFIX)]):
+            LOGGER.debug('Found Target tags into Lambda event')
+            tags = event
+        else:
+            LOGGER.debug('Looking for Target tags into environment variables')
+
+    for key in tags:
+        if key.startswith(TARGET_PREFIX):
+            LOGGER.info(f'Found {key} with value {tags[key]}')
+            tag_name, tag_value = tags[key].split(':')
             filters.append({'Name': f'tag:{tag_name}', 'Values': [tag_value]})
 
     if not filters:
-        raise NoTargetFoundError('No Target found in lambda environment variables')
+        raise NoTargetFoundError('No Target tags has found into environment '
+                                 'variables or Lambda event')
 
     return filters
 
@@ -149,17 +159,18 @@ def suspend_asg_and_stop_instances(instance_ids: list) -> None:
     boto3.client('ec2').stop_instances(InstanceIds=instance_ids)
 
 
-def main(desired_status: str, action_method) -> Dict:
+def main(desired_status: str, action_method: Callable, event: dict = None) -> Dict:
     """
     Main function
-    :param desired_status: The status we are looking for 
-    :param action_method: The AWS Client method used to manipulate EC2 instances
+    :param desired_status: (str) The status we are looking for
+    :param action_method: (Callable) The AWS Client method used to manipulate EC2 instances
+    :param event: (dict) Lambda event (default: None)
     """
     try:
         ec2 = boto3.resource('ec2', region_name=os.environ['AWS_REGION'])
 
         # First, extract targets Tags from environment variables
-        filters = build_instance_filters()
+        filters = build_instance_filters(event=event)
 
         # Second, search for instances using that tags
         LOGGER.info('Let\'s see if any instance match with that tags')
@@ -176,7 +187,7 @@ def main(desired_status: str, action_method) -> Dict:
         LOGGER.info(f'Launch action on instances: {target_instances}')
         action_method(instance_ids=target_instances)
         
-        return {'message': 'Traitment done !'}
+        return {'message': f'Action done for instances {target_instances}'}
 
     except NoTargetFoundError as error:
         LOGGER.error(f'Stop Lambda because: {error}')
@@ -191,7 +202,7 @@ def start_handler(event: dict, context: dict) -> Dict:
     """
     LOGGER.info('Beginning function : you want to START instances...')
     method = start_instances_and_resume_asg
-    return main(desired_status='running', action_method=method)
+    return main(desired_status='running', action_method=method, event=event)
 
 
 def stop_handler(event: dict, context: dict) -> Dict:
@@ -200,7 +211,7 @@ def stop_handler(event: dict, context: dict) -> Dict:
     """
     LOGGER.info('Beginning function : you want to STOP instances...')
     method = suspend_asg_and_stop_instances
-    return main(desired_status='stopped', action_method=method)
+    return main(desired_status='stopped', action_method=method, event=event)
 
 
 def start_or_stop_handler(event: dict, context: dict):
