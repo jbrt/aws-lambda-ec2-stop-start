@@ -8,6 +8,10 @@ A simple AWS Lambda function for stopping/starting instances based on tags
 This solution use two lambda functions (one for starting, one for stopping). 
 **These functions will targeting the instances based on the tags applied on them.**
 
+There is two ways to gives to Lambda functions the tags to seek.
+
+### Targeting instances with Lambda environment variables
+
 You can tell to the functions which tags to use by specifying it in the
 environment variables of each function.
 
@@ -26,6 +30,28 @@ Here is few examples:
 With this example, functions will target instances with tag "Project" (with 
 value MyProject) **AND** tag "Environment" (with value "Production") applied
 on them.
+
+### Targeting instances with Lambda event
+
+You can tell to the functions which tags to use by giving them into an event.
+If so, the target tags declared into this event will have a more precedence 
+than target tags passed through environment variables. That mean environment 
+variables will be ignored.
+
+Here is an example:
+
+```json
+{
+  "Target1": "Project:MyProject",
+  "Target2": "Environment:Production"
+}
+```
+
+With this example, functions will target instances with tag "Project" (with 
+value MyProject) **AND** tag "Environment" (with value "Production") applied
+on them.
+
+## Note about Auto Scaling Groups
 
 If one instance is part of an ASG (Auto Scaling Group), **this ASG will be** 
 **suspended** while the instance is stopped to avoid instance deletion.
@@ -96,6 +122,6 @@ IMPORTANT : the previous example, authorize the user to invoke all the
 functions. You can change that and put the related ARN in
 the resource section of the document. 
 
-# License
+## License
 
 This project is released under MIT license.
