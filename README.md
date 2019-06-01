@@ -3,7 +3,7 @@
 A simple AWS Lambda function for stopping/starting instances based on tags 
 (for demo purpose).
 
-## How it's works ?
+## Function behavior
 
 This solution use two lambda functions (one for starting, one for stopping). 
 **These functions will targeting the instances based on the tags applied on them.**
@@ -51,12 +51,14 @@ With this example, functions will target instances with tag "Project" (with
 value MyProject) **AND** tag "Environment" (with value "Production") applied
 on them.
 
-## Note about Auto Scaling Groups
+### Note about Auto Scaling Groups
 
 If one instance is part of an ASG (Auto Scaling Group), **this ASG will be** 
 **suspended** while the instance is stopped to avoid instance deletion.
 
-## How to deploy it ?
+## Usage
+
+### Deployment
 
 You can use the Terraform called "lambda-deployment.tf" for doing that.
 By default, the functions will be named (but these names can be changed):
@@ -66,7 +68,7 @@ By default, the functions will be named (but these names can be changed):
 
 But you can modify that directly in the template or with tfvars files.
 
-## How to triggered the lambda function ?
+### How to triggered the lambda function ?
 
 These functions can be triggered exactly like all other lambda function.
 By CLI, for instance :
@@ -83,7 +85,7 @@ But many other ways to call these functions are possible:
 - by SNS/SQS 
 - ...
 
-## How to install a "START/STOP" like button ?
+### How to install a "START/STOP" like button ?
 
 Let's assume that you want to do that on a Windows machine (but it's nearly
 the same thing on a Linux machine). 
