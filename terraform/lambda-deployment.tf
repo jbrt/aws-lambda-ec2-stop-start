@@ -1,6 +1,7 @@
 provider "aws" {
   region  = "${var.REGION}"
   version = "2.12.0"
+  profile = "default"
 }
 
 # WARNING: we still used the 0.11 version of Terraform
@@ -42,6 +43,19 @@ locals {
   }
 }
 
+# Log Groups
+resource "aws_cloudwatch_log_group" "log_group_stop" {
+  name              = "/aws/lambda/${var.APP_NAME}-${var.ENV_NAME}-stop"
+  retention_in_days = "7"
+  tags              = "${local.tags}"
+}
+
+resource "aws_cloudwatch_log_group" "log_group_start" {
+  name              = "/aws/lambda/${var.APP_NAME}-${var.ENV_NAME}-start"
+  retention_in_days = "7"
+  tags              = "${local.tags}"
+}
+
 # Declare a function to STOP instances with the right tags
 module "function_stop" {
   source                = "./lambda-startstop"
@@ -73,7 +87,6 @@ module "function_start" {
 }
 
 # Display the name of the Lambda function
-
 output "lambda_function_for_stopping" {
   value = "${module.function_stop.function_name}"
 }
