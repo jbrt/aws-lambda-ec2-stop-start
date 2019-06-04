@@ -1,5 +1,5 @@
 provider "aws" {
-  region  = "${var.REGION}"
+  region  = var.REGION
   version = "2.12.0"
   profile = "default"
 }
@@ -38,8 +38,8 @@ locals {
   # The "tags" variable is only to set tags on lambda function for better
   # tracking
   tags = {
-    Project     = "${var.APP_NAME}"
-    Environment = "${var.ENV_NAME}"
+    Project     = var.APP_NAME
+    Environment = var.ENV_NAME
   }
 }
 
@@ -47,13 +47,13 @@ locals {
 resource "aws_cloudwatch_log_group" "log_group_stop" {
   name              = "/aws/lambda/${var.APP_NAME}-${var.ENV_NAME}-stop"
   retention_in_days = "7"
-  tags              = "${local.tags}"
+  tags              = local.tags
 }
 
 resource "aws_cloudwatch_log_group" "log_group_start" {
   name              = "/aws/lambda/${var.APP_NAME}-${var.ENV_NAME}-start"
   retention_in_days = "7"
-  tags              = "${local.tags}"
+  tags              = local.tags
 }
 
 # Declare a function to STOP instances with the right tags
@@ -67,8 +67,8 @@ module "function_stop" {
   iam_role_name         = "lambda-${var.APP_NAME}-${var.ENV_NAME}-stop"
   iam_policy_name       = "EC2AutoStop${var.APP_NAME}_${var.ENV_NAME}Environment"
   iam_policy_attachment = "attach-${var.APP_NAME}-${var.ENV_NAME}-auto-stop"
-  tags                  = "${local.tags}"
-  environment           = "${local.environment_variables}"
+  tags                  = local.tags
+  environment           = local.environment_variables
 }
 
 # Declare a function to START instances with the right tags
@@ -82,15 +82,16 @@ module "function_start" {
   iam_role_name         = "lambda-${var.APP_NAME}-${var.ENV_NAME}-start"
   iam_policy_name       = "EC2AutoStart${var.APP_NAME}_${var.ENV_NAME}Environment"
   iam_policy_attachment = "attach-${var.APP_NAME}-${var.ENV_NAME}-auto-start"
-  tags                  = "${local.tags}"
-  environment           = "${local.environment_variables}"
+  tags                  = local.tags
+  environment           = local.environment_variables
 }
 
 # Display the name of the Lambda function
 output "lambda_function_for_stopping" {
-  value = "${module.function_stop.function_name}"
+  value = module.function_stop.function_name
 }
 
 output "lambda_function_for_starting" {
-  value = "${module.function_start.function_name}"
+  value = module.function_start.function_name
 }
+
